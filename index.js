@@ -1,46 +1,84 @@
 require("dotenv").config();
 const express = require("express");
+const uid2 = require("uid2");
 const formidable = require("express-formidable");
+// const mongoose = require("mongoose");
 const axios = require("axios");
-// const uid2 = require("uid2");
 const cors = require("cors");
+require("dotenv").config();
+const md5 = require("md5");
 const app = express();
+app.use(formidable());
+app.use(cors());
 
-app.use(cors);
-app.use(formidable);
+apikey_public = process.env.APY_KEY;
+private_key = process.env.PRIVATE_APY_KEY;
 
-// apikey_public = process.env.API_KEY;
-// private_key = process.env.PRIVATE_APY_KEY;
-
-app.get("/comics", async (req, res) => {
+const ts = uid2(16);
+const hash = md5(ts + private_key + apikey_public);
+// console.log(ts);
+// console.log(private_key);
+// console.log(apikey_public);
+app.get("/characters", async (req, res) => {
+  const ts = uid2(16);
+  const hash = md5(ts + private_key + apikey_public);
   try {
-    console.log("hello");
-    // const date = new Date();
-    // const ts = date.getTime();
-    // const hash = md5(ts + private_key + apikey_public);
-    // // console.log(ts);
-    // // console.log(private_key);
-    // // console.log(apikey_public);
+    const response = await axios.get(
+      `http://gateway.marvel.com/v1/public/characters?ts=${ts}&apikey=${apikey_public}&hash=${hash}&limit=100`
+    );
 
-    // const response = await axios.get(
-    //   `https://gateway.marvel.com/v1/public/comics?ts=${ts}&apikey=${private_key}&hash=${hash}`
-    // );
+    res.send(response.data);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+app.get("/character/:id", async (req, res) => {
+  try {
+    const ts = uid2(16);
+    const hash = md5(ts + private_key + apikey_public);
+    const characterId = req.params.id;
+    console.log(req.params);
+    const response = await axios.get(
+      `http://gateway.marvel.com/v1/public/characters/${characterId}?ts=${ts}&apikey=${apikey_public}&hash=${hash}`
+    );
 
-    res.json("response");
+    res.send(response.data.data);
   } catch (error) {
     console.log(error.message);
   }
 });
 
-app.listen(4000, () => {
-  console.log("server started");
+app.get("/comics", async (req, res) => {
+  try {
+    const ts = uid2(16);
+    const hash = md5(ts + private_key + apikey_public);
+    const response = await axios.get(
+      `http://gateway.marvel.com/v1/public/comics?ts=${ts}&apikey=${apikey_public}&hash=${hash}&limit=100`
+    );
+
+    res.send(response.data);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+app.get("/comic/:id", async (req, res) => {
+  try {
+    const ts = uid2(16);
+    const hash = md5(ts + private_key + apikey_public);
+    const comicId = req.params.id;
+    console.log(req.params);
+    const response = await axios.get(
+      `http://gateway.marvel.com/v1/public/comics/${comicId}?ts=${ts}&apikey=${apikey_public}&hash=${hash}`
+    );
+
+    res.send(response.data.data);
+  } catch (error) {
+    console.log(error.message);
+  }
 });
 
-// `http://gateway.marvel.com/v1/public/comics?ts=1&apikey=${apikey}&hash=6f3863d97a51620ce8a9efb1b36a5564`;
+// serveur  -----------------------------
 
-// md5 (156f9c71f039ee9aebb31d0983b8d00e852362271a7b54b3a564f641f6a3253a67f82129d)
-// hash =  6f3863d97a51620ce8a9efb1b36a5564
-
-// ffd275c5130566a2916217b101f26150
-
-// console.log(Math.floor(timestamp)); // va afficher qqchose comme 1582129584
+app.listen(3001, () => {
+  console.log("server started");
+});
