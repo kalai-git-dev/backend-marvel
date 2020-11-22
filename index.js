@@ -5,7 +5,7 @@ const formidable = require("express-formidable");
 // const mongoose = require("mongoose");
 const axios = require("axios");
 const cors = require("cors");
-require("dotenv").config();
+
 const md5 = require("md5");
 const app = express();
 app.use(formidable());
@@ -79,6 +79,6 @@ app.get("/comic/:id", async (req, res) => {
 
 // serveur  -----------------------------
 
-app.listen(3001, () => {
+app.listen(process.env.PORT, () => {
   console.log("server started");
 });
